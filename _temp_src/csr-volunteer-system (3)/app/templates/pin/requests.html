@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}My Requests - PIN{% endblock %}
+
+{% block nav_links %}
+<a href="{{ url_for('pin.dashboard') }}" class="text-gray-700 hover:text-primary">Dashboard</a>
+<a href="{{ url_for('pin.list_requests') }}" class="text-primary font-medium">My Requests</a>
+<a href="{{ url_for('pin.matches') }}" class="text-gray-700 hover:text-primary">My Matches</a>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">My Requests</h1>
+        <p class="text-gray-600 mt-2">Manage your support requests</p>
+    </div>
+    <a href="{{ url_for('pin.create_request') }}" 
+       class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition">
+        Create New Request
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for req in requests %}
+            <tr>
+                <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900">{{ req.requestTitle }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                        {{ req.category.categoryName }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    {% if req.status == 'Draft' %}
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Draft</span>
+                    {% elif req.status == 'Open' %}
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Open</span>
+                    {% else %}
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">Closed</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-600">{{ req.createdAt.strftime('%b %d, %Y') }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <div class="flex gap-2">
+                        <a href="{{ url_for('pin.view_request', request_id=req.requestID) }}" 
+                           class="text-blue-600 hover:text-blue-800">View</a>
+                        {% if req.status != 'Closed' %}
+                        <a href="{{ url_for('pin.edit_request', request_id=req.requestID) }}" 
+                           class="text-green-600 hover:text-green-800">Edit</a>
+                        <form method="POST" action="{{ url_for('pin.delete_request', request_id=req.requestID) }}" class="inline">
+                            <button type="submit" 
+                                    onclick="return confirm('Are you sure you want to delete this request?')"
+                                    class="text-red-600 hover:text-red-800">Delete</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                    No requests yet. <a href="{{ url_for('pin.create_request') }}" class="text-primary hover:text-blue-700">Create your first request</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-6">
+    <a href="{{ url_for('pin.dashboard') }}" class="text-primary hover:text-blue-700">
+        ← Back to Dashboard
+    </a>
+</div>
+{% endblock %}

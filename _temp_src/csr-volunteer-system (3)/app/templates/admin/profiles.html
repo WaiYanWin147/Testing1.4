@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Profiles - Admin{% endblock %}
+
+{% block nav_links %}
+<a href="{{ url_for('admin.dashboard') }}" class="text-gray-700 hover:text-primary">Dashboard</a>
+<a href="{{ url_for('admin.list_users') }}" class="text-gray-700 hover:text-primary">Users</a>
+<a href="{{ url_for('admin.list_profiles') }}" class="text-primary font-medium">Profiles</a>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Manage Profiles</h1>
+        <p class="text-gray-600 mt-2">View and manage user role profiles</p>
+    </div>
+    <a href="{{ url_for('admin.create_profile') }}" 
+       class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition">
+        Create New Profile
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profile Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Users</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for profile in profiles %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ profile.profileName }}</div>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-sm text-gray-600">{{ profile.description or 'No description' }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    {% if profile.isActive %}
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Active</span>
+                    {% else %}
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Inactive</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-600">{{ profile.users|length }} users</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <a href="{{ url_for('admin.edit_profile', profile_id=profile.profileID) }}" 
+                       class="text-blue-600 hover:text-blue-800">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-6">
+    <a href="{{ url_for('admin.dashboard') }}" 
+       class="text-primary hover:text-blue-700">
+        ← Back to Dashboard
+    </a>
+</div>
+{% endblock %}

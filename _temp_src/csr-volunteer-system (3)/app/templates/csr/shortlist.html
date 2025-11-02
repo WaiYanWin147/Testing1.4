@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}My Shortlist - CSR{% endblock %}
+
+{% block nav_links %}
+<a href="{{ url_for('csr.dashboard') }}" class="text-gray-700 hover:text-primary">Dashboard</a>
+<a href="{{ url_for('csr.list_requests') }}" class="text-gray-700 hover:text-primary">Requests</a>
+<a href="{{ url_for('csr.shortlist') }}" class="text-primary font-medium">Shortlist</a>
+<a href="{{ url_for('csr.matches') }}" class="text-gray-700 hover:text-primary">My Matches</a>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">My Shortlist</h1>
+    <p class="text-gray-600 mt-2">Requests you've saved for later</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for req in requests %}
+    <div class="bg-white rounded-lg shadow hover:shadow-lg transition">
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-3">
+                <h3 class="text-lg font-bold text-gray-900">{{ req.requestTitle }}</h3>
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                    {{ req.category.categoryName }}
+                </span>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-4 line-clamp-3">
+                {{ req.description }}
+            </p>
+            
+            <div class="text-xs text-gray-500 mb-4">
+                <p>Posted by: {{ req.person_in_need.name }}</p>
+                <p>{{ req.createdAt.strftime('%B %d, %Y') }}</p>
+            </div>
+            
+            <div class="flex gap-2">
+                <a href="{{ url_for('csr.view_request', request_id=req.requestID) }}" 
+                   class="flex-1 text-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition text-sm">
+                    View Details
+                </a>
+                <form method="POST" action="{{ url_for('csr.remove_from_shortlist', request_id=req.requestID) }}">
+                    <button type="submit" 
+                            class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm">
+                        Remove
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-span-full text-center py-12">
+        <p class="text-gray-500 mb-4">Your shortlist is empty.</p>
+        <a href="{{ url_for('csr.list_requests') }}" 
+           class="text-primary hover:text-blue-700 font-medium">
+            Browse Requests →
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="mt-6">
+    <a href="{{ url_for('csr.dashboard') }}" class="text-primary hover:text-blue-700">
+        ← Back to Dashboard
+    </a>
+</div>
+{% endblock %}
