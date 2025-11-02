@@ -1,19 +1,30 @@
 import pytest
-from flask import Flask
 from app import create_app, db
 from app.entity.user_account import UserAccount
-from app.control import auth_controller
 
 @pytest.fixture()
 def app():
-    app = create_app({"TESTING": True,
-                      "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"})
+    # Use an in-memory database for testing
+    app = create_app({
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"
+    })
+
     with app.app_context():
         db.create_all()
-        # create a dummy user
-        user = UserAccount(username="demo_user", password="1234", role="csr")
+
+        # ✅ Create a dummy user that matches your actual model
+        user = UserAccount(
+            name="Demo User",
+            email="demo@example.com",
+            age=25,
+            phoneNumber="1234567890",
+            profileID=1,   # You might need to adjust this if FK constraint applies
+        )
+        user.password = "1234"  # uses your password property setter
         db.session.add(user)
         db.session.commit()
+
     yield app
 
 
@@ -22,24 +33,21 @@ def client(app):
     return app.test_client()
 
 
-def test_login_success(app):
-    """Simulate a successful login if auth_controller.login() exists"""
+def test_user_password_hash(app):
+    """Ensure password hashing and check_password work"""
     with app.app_context():
-        # Only run if your auth_controller has a login() function
-        if hasattr(auth_controller, "login"):
-            # you might adjust params depending on your implementation
-            result = auth_controller.login("demo_user", "1234")
-            # if the controller returns a dict or obj, just check truthiness
-            assert result is not None
-        else:
-            pytest.skip("auth_controller.login() not implemented")
+        user = UserAccount.query.first()
+        # the _password field should not be equal to plain text
+        assert user._password != "1234"
+        # check_password should return True
+        assert user.check_password("1234") is True
+        # wrong password should fail
+        assert user.check_password("wrong") is False
 
 
-def test_login_failure(app):
-    """Simulate login failure with wrong password"""
+def test_user_get_id(app):
+    """Ensure get_id returns string version of userID"""
     with app.app_context():
-        if hasattr(auth_controller, "login"):
-            bad = auth_controller.login("demo_user", "wrong_pass")
-            assert bad is None or bad is False
-        else:
-            pytest.skip("auth_controller.login() not implemented")
+        user = UserAccount.query.first()
+        assert isinstance(user.get_id(), str)
+        assert user.get_id() == str(user.userID)
