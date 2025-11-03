@@ -13,7 +13,7 @@ def app():
     with app.app_context():
         db.create_all()
 
-        # ✅ Create a dummy user that matches your actual model
+        #Create a dummy user that matches your actual model
         user = UserAccount(
             name="Demo User",
             email="demo@example.com",
